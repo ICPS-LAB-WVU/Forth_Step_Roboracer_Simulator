@@ -6,6 +6,7 @@ This is a containerized ROS communication bridge for the F1TENTH gym environment
 **Supported System:**
 
 - Ubuntu (tested on 20.04) native with ROS 2
+- Ubuntu (tested on 22.04) native with ROS 2
 - Ubuntu (tested on 20.04) with an NVIDIA gpu and nvidia-docker2 support
 - Windows 10, macOS, and Ubuntu without an NVIDIA gpu (using noVNC)
 
@@ -158,3 +159,48 @@ There are multiple ways to launch your own agent to control the vehicles.
 
 - The first one is creating a new package for your agent in the `/sim_ws` workspace inside the sim container. After launch the simulation, launch the agent node in another bash session while the sim is running.
 - The second one is to create a new ROS 2 container for you agent node. Then create your own package and nodes inside. Launch the sim container and the agent container both. With default networking configurations for `docker`, the behavior is to put The two containers on the same network, and they should be able to discover and talk to each other on different topics. If you're using noVNC, create a new service in `docker-compose.yml` for your agent node. You'll also have to put your container on the same network as the sim and novnc containers.
+
+# If You are using ROS Humble
+Remove the system coverage package
+
+Run:
+```bash
+sudo apt remove python3-coverage
+```
+
+If it asks for confirmation, accept.
+
+Then check that Python no longer finds coverage:
+```bash
+python3 - << 'EOF'
+try:
+    import coverage
+    print("coverage imported from:", coverage.__file__)
+except ImportError:
+    print("coverage is NOT installed (this is what we want).")
+EOF
+```
+
+Ideally you see:
+
+coverage is NOT installed (this is what we want).
+
+Step 2 – (Optional) Install your own coverage version
+
+You only need this if you use coverage for testing your own code. It’s not required for F1TENTH.
+
+If you want it:
+```bash
+python3 -m pip install --user "coverage>=7.0"
+```
+
+Then you can verify:
+```bash
+python3 - << 'EOF'
+import coverage, sys
+print("Python:", sys.version)
+print("coverage version:", coverage.__version__)
+print("module file:", coverage.__file__)
+EOF
+```
+
